@@ -1,22 +1,24 @@
 import { connect } from "amqplib";
 import got from "got";
 import dotenv from "dotenv";
+import pino from 'pino';
 dotenv.config({ path: ".env" });
 const { RABBITMQ_PORT, RABBITMQ_HOST } = process.env;
 
+const logger = pino();
 const connection = await connect(`${RABBITMQ_HOST}:${RABBITMQ_PORT}`);
 const channel = await connection.createChannel();
 const queueName = "someQueue";
 channel.assertQueue(queueName, { durable: false });
 channel.prefetch(1);
 channel.consume(queueName, async (message) => {
+	logger.info({
+		action: "recieve message from m2",
+		payload: message,
+	});
 	let post;
 	try {
 		const repo = message.content.toString();
-		console.log({
-			action: "recieve message from m2",
-			payload: repo,
-		});
 		const res = await got(
 			`https://api.github.com/repos/${repo}/commits`
 		).json();
@@ -28,6 +30,7 @@ channel.consume(queueName, async (message) => {
 			action: "m2",
 			error,
 		};
+		logger.error(post)
 	}
 
 	channel.sendToQueue(
@@ -39,4 +42,4 @@ channel.consume(queueName, async (message) => {
 	);
 	channel.ack(message);
 });
-console.log("Awaiting RPC requests");
+logger.info("Awaiting RPC requests");
