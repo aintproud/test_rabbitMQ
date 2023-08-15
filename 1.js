@@ -19,14 +19,14 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get("/", async (req, res) => {
 	const repo = req.body?.repo;
-	if (!repo || !(typeof repo === 'string')) {
+	if (!repo || !(typeof repo === "string")) {
 		const errorMessage = {
 			action: "m1",
 			error: "repo (String) is required",
-		}
+		};
 		logger.error(errorMessage);
-		res.status(400).send(errorMessage)
-		return
+		res.status(400).send(errorMessage);
+		return;
 	}
 	const result = await channel.assertQueue("", { exclusive: true });
 	const callbackQueue = result.queue;

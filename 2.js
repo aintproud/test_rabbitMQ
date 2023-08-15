@@ -1,7 +1,7 @@
 import { connect } from "amqplib";
 import got from "got";
 import dotenv from "dotenv";
-import pino from 'pino';
+import pino from "pino";
 dotenv.config({ path: ".env" });
 const { RABBITMQ_PORT, RABBITMQ_HOST } = process.env;
 
@@ -30,7 +30,7 @@ channel.consume(queueName, async (message) => {
 			action: "m2",
 			error,
 		};
-		logger.error(post)
+		logger.error(post);
 	}
 
 	channel.sendToQueue(
